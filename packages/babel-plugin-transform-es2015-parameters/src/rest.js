@@ -105,38 +105,13 @@ export let visitor = {
     // otherwise `arguments` will be remapped in arrow functions
     argsId._shadowedFunctionLiteral = path;
 
-
     function optimiseCandidate(parentPath, offset) {
       if (parentPath.isReturnStatement() || parentPath.isIdentifier()) {
         parentPath.replaceWith(loadRest({
           ARGUMENTS: argsId,
           KEY: t.numericLiteral(parentPath.property.value + offset)
         }));
-      } else {
-        if (offset === 0) return;
-        let newExpr;
-        let prop = parentPath.property;
-
-        if (prop.isLiteral()) {
-          prop.value += offset;
-          prop.raw = String(prop.value);
-        } else { // UnaryExpression, BinaryExpression
-          newExpr = t.binaryExpression("+", prop, t.numericLiteral(offset));
-          parentPath.property = newExpr;
-        }
       }
-    }
-
-    // support patterns // no test case?
-    if (t.isPattern(rest)) {
-      let pattern = rest;
-      rest = scope.generateUidIdentifier("ref");
-
-      let declar = t.variableDeclaration("let", pattern.elements.map(function (elem, index) {
-        let accessExpr = t.memberExpression(rest, t.numericLiteral(index), true);
-        return t.variableDeclarator(elem, accessExpr);
-      }));
-      node.body.body.unshift(declar);
     }
 
     // check and optimise for extremely common cases
@@ -147,7 +122,7 @@ export let visitor = {
       argumentsNode: argsId,
       outerBinding:  scope.getBindingIdentifier(rest.name),
 
-      // candidate member expressions we could optimise if there are no other references
+      // candidate MemberExpressions we could optimise if there are no other references
       candidates: [],
 
       // local rest binding name
@@ -163,7 +138,6 @@ export let visitor = {
       // we only have shorthands and there are no other references
       if (state.candidates.length) {
         for (let candidate of (state.candidates: Array)) {
-          candidate.replaceWith(argsId);
           optimiseCandidate(candidate.parentPath);
         }
       }
@@ -174,8 +148,6 @@ export let visitor = {
 
     // deopt shadowed functions as transforms like regenerator may try touch the allocation loop
     state.deopted = state.deopted || !!node.shadow;
-
-    //
 
     let start = t.numericLiteral(node.params.length);
     let key = scope.generateUidIdentifier("key");
