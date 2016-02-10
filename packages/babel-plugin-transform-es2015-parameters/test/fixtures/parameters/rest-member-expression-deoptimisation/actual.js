@@ -44,3 +44,13 @@ var b = function (foo, baz, ...bar) {
 function x (...rest) {
   rest[0] = 0;
 }
+
+function swap (...rest) {
+  [rest[0], rest[1]] = [rest[1], rest[0]];
+}
+
+function forIn (...rest) {
+  for (rest[0] in this) {
+    foo(rest[0]);
+  }
+}

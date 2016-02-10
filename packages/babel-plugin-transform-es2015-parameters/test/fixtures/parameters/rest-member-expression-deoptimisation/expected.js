@@ -77,3 +77,23 @@ function x() {
 
   rest[0] = 0;
 }
+
+function swap() {
+  for (var _len9 = arguments.length, rest = Array(_len9), _key9 = 0; _key9 < _len9; _key9++) {
+    rest[_key9] = arguments[_key9];
+  }
+
+  var _ref = [rest[1], rest[0]];
+  rest[0] = _ref[0];
+  rest[1] = _ref[1];
+}
+
+function forIn() {
+  for (var _len10 = arguments.length, rest = Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
+    rest[_key10] = arguments[_key10];
+  }
+
+  for (rest[0] in this) {
+    foo(rest[0]);
+  }
+}
